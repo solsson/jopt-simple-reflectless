@@ -25,15 +25,18 @@
 
 package joptsimple.internal;
 
+import static java.lang.reflect.Modifier.isPublic;
+import static java.lang.reflect.Modifier.isStatic;
+import static joptsimple.internal.Classes.wrapperOf;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import static java.lang.reflect.Modifier.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import joptsimple.ValueConverter;
-
-import static joptsimple.internal.Classes.*;
 
 /**
  * Helper methods for reflection.
@@ -41,6 +44,42 @@ import static joptsimple.internal.Classes.*;
  * @author <a href="mailto:pholser@alumni.rice.edu">Paul Holser</a>
  */
 public final class Reflection {
+
+    private static class Predefined<V> {
+        final Class<V> clazz;
+        final ValueConverter<V> converter;
+
+        Predefined(Class<V> clazz, ValueConverter<V> converter) {
+            this.clazz = clazz;
+            this.converter = converter;
+        }
+    }
+
+    static final Set<Predefined<?>> predefined = new HashSet<Reflection.Predefined<?>>();
+
+    static {
+        try {
+            predefined.add(new Predefined<String>(String.class,
+                    new ConstructorInvokingValueConverter<String>(String.class.getConstructor(String.class))));
+            predefined.add(new Predefined<Integer>(Integer.class,
+                    new ConstructorInvokingValueConverter<Integer>(Integer.class.getConstructor(String.class))));
+        } catch (NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    static <V> ValueConverter<V> predefinedConverter(Class<V> clazz) {
+        Iterator<Predefined<?>> pi = predefined.iterator();
+        while (pi.hasNext()) {
+            Predefined<?> p = pi.next();
+            if (p.clazz.equals(clazz))
+                return (ValueConverter<V>) p.converter;
+        }
+        return null;
+    }
+
     private Reflection() {
         throw new UnsupportedOperationException();
     }
@@ -53,6 +92,11 @@ public final class Reflection {
      * @return a converter method or constructor
      */
     public static <V> ValueConverter<V> findConverter( Class<V> clazz ) {
+
+        ValueConverter<V> predef = predefinedConverter(clazz);
+        if ( predef != null )
+            return predef;
+
         Class<V> maybeWrapper = wrapperOf( clazz );
 
         ValueConverter<V> valueOf = valueOfConverter( maybeWrapper );

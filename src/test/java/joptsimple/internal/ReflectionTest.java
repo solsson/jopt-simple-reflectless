@@ -32,7 +32,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import joptsimple.ValueConverter;
+
 import static joptsimple.internal.Reflection.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.rules.ExpectedException.*;
 
 /**
@@ -99,6 +103,15 @@ public class ReflectionTest {
         thrown.expectMessage( IllegalArgumentException.class.getName() );
 
         invoke( method, new Object() );
+    }
+
+    @Test
+    public void testFindConverterString() {
+        ValueConverter<String> converter = Reflection.findConverter(java.lang.String.class);
+        assertNotNull(converter);
+
+        ValueConverter<String> predefined = Reflection.predefinedConverter(String.class);
+        assertTrue("Should be the predifined instance", predefined == converter);
     }
 
     private abstract static class AbstractProblematic {
