@@ -94,6 +94,7 @@ public final class Reflection {
      * @return a converter method or constructor
      */
     public static <V> ValueConverter<V> findConverter( Class<V> clazz ) {
+        if ("long".equals("" + clazz)) clazz = (Class<V>) java.lang.Long.class;
 
         ValueConverter<V> predef = predefinedConverter(clazz);
         if ( predef != null )
