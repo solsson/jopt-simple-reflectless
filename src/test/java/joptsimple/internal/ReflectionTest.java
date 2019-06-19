@@ -106,11 +106,11 @@ public class ReflectionTest {
     }
 
     @Test
-    public void testFindConverterString() {
-        ValueConverter<String> converter = Reflection.findConverter(java.lang.String.class);
+    public void testFindConverterLong() {
+        ValueConverter<Long> converter = Reflection.findConverter(java.lang.Long.class);
         assertNotNull(converter);
 
-        ValueConverter<String> predefined = Reflection.predefinedConverter(String.class);
+        ValueConverter<Long> predefined = Reflection.predefinedConverter(Long.class);
         assertTrue("Should be the predifined instance", predefined == converter);
     }
 

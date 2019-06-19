@@ -63,6 +63,8 @@ public final class Reflection {
                     new ConstructorInvokingValueConverter<String>(String.class.getConstructor(String.class))));
             predefined.add(new Predefined<Integer>(Integer.class,
                     new ConstructorInvokingValueConverter<Integer>(Integer.class.getConstructor(String.class))));
+            predefined.add(new Predefined<Long>(Long.class,
+                    new ConstructorInvokingValueConverter<Long>(Long.class.getConstructor(String.class))));
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
             System.exit(1);
